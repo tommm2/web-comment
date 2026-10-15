@@ -1,6 +1,6 @@
 import type { Anchor } from '../types/domain';
 
-const STABLE_ATTRIBUTES = ['data-testid', 'data-test', 'aria-label', 'name', 'title'];
+const STABLE_ATTRIBUTES = ['data-testid', 'data-test', 'aria-label', 'name', 'title', 'alt', 'href', 'src'];
 
 export function normalizedText(element: Element): string {
   return (element.textContent ?? '').replace(/\s+/g, ' ').trim().slice(0, 160);

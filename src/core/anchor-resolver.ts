@@ -10,10 +10,12 @@ function score(candidate: Element, anchor: Anchor): number {
   }
   if (anchor.role && candidate.getAttribute('role') !== anchor.role) return -1;
   if (anchor.name && candidate.getAttribute('aria-label') !== anchor.name) return -1;
+  const matchingClasses = anchor.classes.filter((value) => candidate.classList.contains(value)).length;
+  if (!anchor.quote && !Object.keys(anchor.attributes).length && !anchor.name && anchor.classes.length && !matchingClasses) return -1;
   let result = 4;
   if (anchor.quote) result += 4;
   result += Object.keys(anchor.attributes).length * 3;
-  result += anchor.classes.filter((value) => candidate.classList.contains(value)).length;
+  result += matchingClasses;
   let parent = candidate.parentElement;
   for (const tag of anchor.ancestors) {
     if (parent?.tagName.toLowerCase() === tag) result += 1;

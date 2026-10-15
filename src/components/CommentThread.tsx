@@ -12,7 +12,7 @@ export function CommentThread({ comments, onReply, onEdit, onDelete }: {
   return <div className="wc-comments">
     {comments.map((comment) => <article key={comment.id} className="wc-comment" style={{ marginLeft: comment.parentId ? 16 : 0 }}>
       <time dateTime={comment.createdAt}>{new Date(comment.createdAt).toLocaleString()}</time>
-      {editing === comment.id ? <form onSubmit={async (event) => { event.preventDefault(); await onEdit(comment.id, text); setEditing(null); }}>
+      {editing === comment.id ? <form onSubmit={async (event) => { event.preventDefault(); try { await onEdit(comment.id, text); setEditing(null); } catch { /* Parent displays the storage error; keep draft. */ } }}>
         <textarea aria-label="Edit comment" value={text} maxLength={5000} onChange={(event) => setText(event.target.value)} />
         <div className="wc-row"><button type="submit">Save</button><button type="button" onClick={() => setEditing(null)}>Cancel</button></div>
       </form> : <p>{comment.content}</p>}

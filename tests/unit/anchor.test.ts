@@ -36,4 +36,10 @@ describe('anchors', () => {
     document.body.innerHTML = '<div></div>';
     expect(resolveAnchor(anchor)).toBeNull();
   });
+  it('does not bind a different image after its class and source change', () => {
+    document.body.innerHTML = '<img class="hero" src="a.jpg">';
+    const anchor = generateAnchor(document.querySelector('img')!, { x: 0, y: 0 }, 'https://example.com');
+    document.body.innerHTML = '<img src="unrelated.jpg">';
+    expect(resolveAnchor(anchor)).toBeNull();
+  });
 });

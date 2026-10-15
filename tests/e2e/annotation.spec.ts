@@ -50,6 +50,10 @@ test('creates, restores, edits, replies, resolves, and deletes a thread', async 
   await page.getByRole('button', { name: 'Post comment' }).click();
   await expect(page.getByText('Looks good')).toBeVisible();
   await page.getByRole('button', { name: 'Edit' }).first().click();
+  await page.getByRole('textbox', { name: 'Edit comment' }).fill('   ');
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: 'Edit comment' })).toHaveValue('   ');
+  await expect(page.getByRole('dialog', { name: 'Annotation comments' }).getByRole('alert')).toContainText('Comment cannot be empty');
   await page.getByRole('textbox', { name: 'Edit comment' }).fill('Review this control');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByText('Review this control')).toBeVisible();

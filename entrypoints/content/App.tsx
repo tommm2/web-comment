@@ -21,15 +21,20 @@ export function App({ shadowRoot, initialMode, onReady }: { shadowRoot: ShadowRo
   const [error, setError] = useState('');
   const [siteAccess, setSiteAccess] = useState(false);
   const highlightRef = useRef<HTMLDivElement>(null);
+  const currentPage = useRef(pageUrl);
 
   const load = useCallback(async (url: string) => {
-    try { setAnnotations(await request({ channel: 'web-comment', type: 'listPage', pageUrl: url })); setError(''); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not load annotations'); }
+    try {
+      const items = await request({ channel: 'web-comment', type: 'listPage', pageUrl: url });
+      if (currentPage.current === url) { setAnnotations(items); setError(''); }
+    } catch (cause) {
+      if (currentPage.current === url) setError(cause instanceof Error ? cause.message : 'Could not load annotations');
+    }
   }, []);
 
   useEffect(() => {
     void load(pageUrl);
-    return observePageNavigation((url) => { setPageUrl(url); setDraft(null); setThread(null); setAnnotations([]); setOrphanIds([]); void load(url); });
+    return observePageNavigation((url) => { currentPage.current = url; setPageUrl(url); setDraft(null); setThread(null); setAnnotations([]); setOrphanIds([]); void load(url); });
   }, [load, pageUrl]);
 
   useEffect(() => {
@@ -98,8 +103,11 @@ export function App({ shadowRoot, initialMode, onReady }: { shadowRoot: ShadowRo
   }, [annotations, shadowRoot]);
 
   const refreshThread = async (id: string) => {
-    setThread(await request({ channel: 'web-comment', type: 'getThread', id }));
-    await load(pageUrl);
+    const url = pageUrl;
+    const next = await request({ channel: 'web-comment', type: 'getThread', id });
+    if (currentPage.current !== url) return;
+    setThread(next);
+    await load(url);
   };
 
   const perform = async (task: () => Promise<void>) => {
@@ -110,7 +118,7 @@ export function App({ shadowRoot, initialMode, onReady }: { shadowRoot: ShadowRo
     <div ref={highlightRef} className="wc-highlight" aria-hidden="true" />
     {annotations.map((annotation, index) => <AnnotationPin key={annotation.id} annotation={annotation} number={index + 1} onClick={() => void perform(async () => {
       const item = await request({ channel: 'web-comment', type: 'getThread', id: annotation.id });
-      if (!item) return;
+      if (!item || currentPage.current !== pageUrl) return;
       setThread(item);
       const pin = shadowRoot.querySelector<HTMLElement>(`[data-pin-id="${annotation.id}"]`);
       const rect = pin?.getBoundingClientRect();
@@ -122,14 +130,15 @@ export function App({ shadowRoot, initialMode, onReady }: { shadowRoot: ShadowRo
       try {
         if (draft) {
           const created = await request({ channel: 'web-comment', type: 'createThread', anchor: draft, content });
+          if (currentPage.current !== pageUrl) return;
           setDraft(null); setThread(created); await load(pageUrl);
         } else if (thread) {
           await request({ channel: 'web-comment', type: 'addComment', annotationId: thread.annotation.id, parentId, content });
-          await refreshThread(thread.annotation.id);
+          if (currentPage.current === pageUrl) await refreshThread(thread.annotation.id);
         }
         setError('');
       } catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not save comment'); throw cause; }
-    }} onEdit={async (id, content) => { if (!thread) return; await perform(async () => { await request({ channel: 'web-comment', type: 'editComment', id, content }); await refreshThread(thread.annotation.id); }); }} onDelete={async (id) => { if (!thread) return; await perform(async () => { await request({ channel: 'web-comment', type: 'deleteComment', id }); await refreshThread(thread.annotation.id); }); }} onStatus={async () => { if (!thread) return; await perform(async () => { await request({ channel: 'web-comment', type: 'setStatus', id: thread.annotation.id, status: thread.annotation.status === 'open' ? 'resolved' : 'open' }); await refreshThread(thread.annotation.id); }); }} onDeleteAnnotation={async () => { if (!thread) return; await perform(async () => { await request({ channel: 'web-comment', type: 'deleteAnnotation', id: thread.annotation.id }); setThread(null); await load(pageUrl); }); }} />}
+    }} onEdit={async (id, content) => { if (!thread) return; try { await request({ channel: 'web-comment', type: 'editComment', id, content }); await refreshThread(thread.annotation.id); setError(''); } catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not edit comment'); throw cause; } }} onDelete={async (id) => { if (!thread) return; await perform(async () => { await request({ channel: 'web-comment', type: 'deleteComment', id }); await refreshThread(thread.annotation.id); }); }} onStatus={async () => { if (!thread) return; await perform(async () => { await request({ channel: 'web-comment', type: 'setStatus', id: thread.annotation.id, status: thread.annotation.status === 'open' ? 'resolved' : 'open' }); await refreshThread(thread.annotation.id); }); }} onDeleteAnnotation={async () => { if (!thread) return; await perform(async () => { await request({ channel: 'web-comment', type: 'deleteAnnotation', id: thread.annotation.id }); setThread(null); await load(pageUrl); }); }} />}
     {error && !draft && !thread && <div className="wc-toast" role="alert">{error}</div>}
   </div>;
 }
