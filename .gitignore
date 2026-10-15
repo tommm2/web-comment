@@ -1,0 +1,7 @@
+node_modules/
+.wxt/
+.output/
+.superpowers/
+playwright-report/
+test-results/
+.DS_Store
