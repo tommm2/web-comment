@@ -77,6 +77,8 @@ test('tracks scroll, scopes SPA routes, and marks removed targets as orphaned', 
   await page.getByRole('button', { name: 'Close comments' }).click();
   const pin = page.getByRole('button', { name: 'Open annotation 1' });
   const before = await pin.boundingBox();
+  const targetBox = await page.locator('#target').boundingBox();
+  expect(before && targetBox && (before.x >= targetBox.x + targetBox.width || before.x + before.width <= targetBox.x)).toBeTruthy();
   await page.evaluate(() => scrollTo(0, 40));
   await expect.poll(async () => (await pin.boundingBox())?.y).toBeLessThan((before?.y ?? 0) - 20);
   await page.evaluate(() => scrollTo(0, 0));

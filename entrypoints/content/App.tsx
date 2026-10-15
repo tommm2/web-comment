@@ -82,8 +82,8 @@ export function App({ shadowRoot, initialMode, onReady }: { shadowRoot: ShadowRo
         const rect = target?.getBoundingClientRect();
         if (!rect || !target?.isConnected || !rect.width || !rect.height) { pin.style.display = 'none'; missing.push(annotation.id); return; }
         if (rect.bottom < 0 || rect.top > window.innerHeight || rect.right < 0 || rect.left > window.innerWidth) { pin.style.display = 'none'; return; }
-        const x = rect.left + rect.width * annotation.anchor.offset.x;
-        let y = rect.top + rect.height * annotation.anchor.offset.y;
+        const x = rect.right + 4 + 24 <= window.innerWidth ? rect.right + 4 : Math.max(4, rect.left - 28);
+        let y = rect.top + rect.height * annotation.anchor.offset.y - 12;
         for (const earlier of placed) if (Math.abs(earlier.x - x) < 26 && Math.abs(earlier.y - y) < 26) y = earlier.y + 28;
         placed.push({ x, y });
         pin.style.display = 'grid';
