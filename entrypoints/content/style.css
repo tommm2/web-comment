@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+:host { font-size: 16px; }
+.wc-root { font: 13px/1.4 system-ui, sans-serif; color: #15221d; pointer-events: none; }
+.wc-root * { box-sizing: border-box; }
+.wc-root button, .wc-root textarea { font: inherit; }
+.wc-root button { cursor: pointer; }
+.wc-root button:focus-visible, .wc-root textarea:focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
+.wc-highlight { position: fixed; display: none; z-index: 0; border: 2px solid #10b981; background: rgb(16 185 129 / 12%); pointer-events: none; }
+.wc-pin { position: fixed; display: none; place-items: center; width: 24px; height: 24px; border: 2px solid white; border-radius: 50%; background: #047857; color: white; font-weight: 700; box-shadow: 0 2px 8px #0005; pointer-events: auto; z-index: 2; }
+.wc-toolbar, .wc-orphans, .wc-toast { position: fixed; left: 12px; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #b7d9c8; border-radius: 9px; background: #fff; box-shadow: 0 4px 20px #0002; pointer-events: auto; z-index: 3; }
+.wc-toolbar { top: 12px; }
+.wc-orphans { bottom: 12px; }
+.wc-toast { top: 60px; color: #9f1239; }
+.wc-popover { position: fixed; width: min(320px, calc(100vw - 24px)); max-height: min(480px, calc(100vh - 24px)); overflow: auto; padding: 12px; border: 1px solid #b7d9c8; border-radius: 12px; background: #fff; box-shadow: 0 12px 40px #0003; pointer-events: auto; z-index: 4; }
+.wc-header, .wc-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.wc-header { margin-bottom: 10px; }
+.wc-root button:not(.wc-pin):not(.wc-primary) { border: 0; background: transparent; color: #047857; padding: 3px; }
+.wc-root textarea { display: block; width: 100%; min-height: 64px; margin: 6px 0; padding: 8px; border: 1px solid #9eb7a8; border-radius: 7px; resize: vertical; color: inherit; background: inherit; }
+.wc-primary { border: 0; border-radius: 7px; background: #047857; color: white; padding: 7px 10px; }
+.wc-primary:disabled { opacity: .5; cursor: default; }
+.wc-comments { max-height: 210px; overflow: auto; }
+.wc-comment { border-top: 1px solid #e5ede8; padding: 8px 0; }
+.wc-comment time { color: #65756c; font-size: 11px; }
+.wc-comment p { margin: 4px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.wc-actions { margin: 8px 0; }
+.wc-error { color: #be123c; }
+@media (prefers-color-scheme: dark) {
+  .wc-root { color: #ebf7f0; }
+  .wc-toolbar, .wc-orphans, .wc-toast, .wc-popover { background: #14231c; border-color: #286b4d; }
+  .wc-highlight { border-color: #34d399; background: rgb(52 211 153 / 18%); }
+  .wc-comment { border-color: #286b4d; }
+}
